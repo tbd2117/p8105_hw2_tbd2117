@@ -1,0 +1,68 @@
+---
+title: "Homework 1"
+author: "Thiago de Araujo - UNI tbd2117"
+output: github_document
+---
+
+```{r message=FALSE}
+library(tidyverse)
+```
+
+### Problem 1
+
+Here's the first code chunk to create the requested **dataframe** and its **means**:
+
+```{r chunk1}
+prob1 = 
+  tibble(
+    samp = rnorm(10),
+    logic = samp > 0,
+    char = c("This", "is", "a", "vector", "that", "contains", "a", "length", "of", "ten"),
+    factor = factor(c("low", "medium", "high", "medium", "medium", "low", "medium", "low", "high", "low"))
+)
+
+# attempt to take the mean of each data variable
+mean(pull(prob1, samp))
+mean(pull(prob1, logic))
+mean(pull(prob1, char))
+mean(pull(prob1, factor))
+```
+
+Taking the mean of each variable works for the _samp_ variable (mean = `r mean(pull(prob1, samp))`) and for the _logic_ variable (mean = `r mean(pull(prob1, logic))`). It does not work for the char and factor variables.
+
+```{r chunk1.5, eval=FALSE}
+# appling the as.numeric function
+as.numeric(pull(prob1, logic))
+as.numeric(pull(prob1, char))
+as.numeric(pull(prob1, factor))
+````
+Using the _as.numeric_ function it is possible to see values being attributed to TRUE and FALSE in the _logic_ variable and for each level in the _factor_ variable. It does help explain what happens when trying to take the mean of logical vectors (means of 0s and 1s).
+
+Here's the **second code chunk**:
+```{r chunk2}
+as.numeric(pull(prob1, logic)) * pull(prob1, samp)
+as.numeric(pull(prob1, char)) * pull(prob1, samp)
+as.numeric(pull(prob1, factor)) * pull(prob1, samp)
+```
+
+### Problem 2
+
+```{r}
+# loading the penguins dataset
+data("penguins", package = "palmerpenguins")
+levels(penguins$species)
+```
+
+The _penguins_ dataset contains data on penguin species (`r levels(penguins$species)`), islands (`r levels(penguins$island)`), length of bills and flippers, body mass, sex, and year.
+
+The dataset has `r nrow(penguins)` rows and `r ncol(penguins)` columns. 
+
+The mean flipper length is `r mean(penguins$flipper_length_mm, na.rm=TRUE)`.
+
+```{r message=FALSE}
+# scatterplot of flipper vs. bill length
+ggplot(penguins, aes(x=bill_length_mm, y=flipper_length_mm, color=species)) + geom_point()
+
+# exporting scatterplot 
+ggsave("scatter_plot.pdf", height = 4, width = 6)
+```
