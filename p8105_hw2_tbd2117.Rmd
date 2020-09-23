@@ -56,27 +56,32 @@ precipitation =
 
 Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in both resulting datasets, and give examples of key variables. For available data, what was the total precipitation in 2018? What was the median number of sports balls in a dumpster in 2017?
 
-The total precipitation in 2018 was `r sum(pull(precip_2018, total))`in.
 ```{r}
 # median number of sports balls in a dumpster in 2017
-dumpster_2017 =
-  filter(mr_trash_df, year == "2017")
+sports_balls_2017 = bind_rows(mr_trash_df, professor_trash_df, captain_trash_df) %>% 
+  select(sports_balls, year) %>% 
+  drop_na() %>% 
+  filter(year == "2017")
 
 # total precipitation in 2018
 sum(pull(precip_2018, total))
 ```
 
+The _mr_trash_df_ dataset contains data on trash collected by Mr. Trash Wheel. The dataset has `r nrow(mr_trash_df)` rows and `r ncol(mr_trash_df)` columns, and includes data for dumpsters from `r min(pull(mr_trash_df, year), na.rm=TRUE)` to `r max(pull(mr_trash_df, year), na.rm=TRUE)`.
 
 
-The median number of sports balls in the _Mr. Trash Wheel_ dumpster in 2017 was `r median(pull(dumpster_2017, sports_balls))`.
+The _professor_trash_df_ contains data on trash collected by Professor Trash Wheel. The dataset has `r nrow(professor_trash_df)` rows and `r ncol(professor_trash_df)` columns, and includes data for dumpsters from `r min(pull(professor_trash_df, year), na.rm=TRUE)` to `r max(pull(professor_trash_df, year), na.rm=TRUE)`.
+
+
+The _captain_trash_df_ contains data on trash collected by Captain Trash Wheel. The dataset has `r nrow(captain_trash_df)` rows and `r ncol(captain_trash_df)` columns, and includes data for dumpsters from `r min(pull(captain_trash_df, year), na.rm=TRUE)` to `r max(pull(captain_trash_df, year), na.rm=TRUE)`.
+
+
+The total precipitation in 2018 was `r sum(pull(precip_2018, total))`in.
+
+The median number of sports balls in a dumpster in 2017 was `r median(pull(sports_balls_2017, sports_balls))`.
 
 
 ```{r}
-mr_trash_2017 = 
-  filter(mr_trash_df, year == "2017")
 
-median(pull(mr_trash_2017, sports_balls))
-
-sum()
 ```
 
