@@ -30,7 +30,7 @@ captain_trash_df =
   janitor::clean_names()
 ```
 
-Read and clean precipitation data for 2017 and 2018. For each, omit rows without precipitation data and add a variable year.
+**Read and clean precipitation data for 2017 and 2018. For each, omit rows without precipitation data and add a variable year.**
 
 ```{r}
 precip_2018 = 
@@ -46,7 +46,7 @@ precip_2017 =
   mutate(month = month.name)
 ```
 
-Next, combine precipitation datasets and convert month to a character variable (the variable month.name is built into R and should be useful).
+**Next, combine precipitation datasets and convert month to a character variable (the variable month.name is built into R and should be useful).**
 
 ```{r}
 precipitation =
@@ -54,8 +54,7 @@ precipitation =
   relocate(year)
 ```
 
-Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in both resulting datasets, and give examples of key variables. For available data, what was the total precipitation in 2018? What was the median number of sports balls in a dumpster in 2017?
-
+**Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in both resulting datasets, and give examples of key variables.** 
 ```{r}
 # median number of sports balls in a dumpster in 2017
 sports_balls_2017 = bind_rows(mr_trash_df, professor_trash_df, captain_trash_df) %>% 
@@ -75,6 +74,7 @@ The _professor_trash_df_ contains data on trash collected by Professor Trash Whe
 
 The _captain_trash_df_ contains data on trash collected by Captain Trash Wheel. The dataset has `r nrow(captain_trash_df)` rows and `r ncol(captain_trash_df)` columns, and includes data for dumpsters from `r min(pull(captain_trash_df, year), na.rm=TRUE)` to `r max(pull(captain_trash_df, year), na.rm=TRUE)`.
 
+**For available data, what was the total precipitation in 2018? What was the median number of sports balls in a dumpster in 2017?**
 
 The total precipitation in 2018 was `r sum(pull(precip_2018, total))`in.
 
@@ -82,7 +82,7 @@ The median number of sports balls in a dumpster in 2017 was `r median(pull(sport
 
 ### Problem 2
 
-Read and clean the data; retain line, station, name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance. Convert the entry variable from character (YES vs NO) to a logical variable (the ifelse or recode function may be useful).
+**Read and clean the data; retain line, station, name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance. Convert the entry variable from character (YES vs NO) to a logical variable (the ifelse or recode function may be useful).**
 
 ```{r}
 transit = 
@@ -92,11 +92,31 @@ transit =
   mutate(entry = entry == "YES")
 ```
 
-Write a short paragraph about this dataset – explain briefly what variables the dataset contains, describe your data cleaning steps so far, and give the dimension (rows x columns) of the resulting dataset. Are these data tidy?
+**Write a short paragraph about this dataset – explain briefly what variables the dataset contains, describe your data cleaning steps so far, and give the dimension (rows x columns) of the resulting dataset.**
 
-How many distinct stations are there? Note that stations are identified both by name and by line (e.g. 125th St A/B/C/D; 125st 1; 125st 4/5); the distinct function may be useful here.
-How many stations are ADA compliant?
-What proportion of station entrances / exits without vending allow entrance?
+The dataset _transit_ contains information related to each entrance and exit for each subway station in NYC. So far the variable names have been cleaned and the variables of interest (`r colnames(transit)`) were selected. The dataset has `r nrow(transit)` rows and `r ncol(transit)` columns.
+
+**Are these data tidy?**
+
+These data could be tidy-er if repeated observations were excluded.
+
+**How many distinct stations are there?**
+
+```{r}
+transit_unique = distinct(transit, line, station_name, .keep_all=TRUE)
+```
+
+There are `r nrow(transit_unique)` distinct stations.
+
+**How many stations are ADA compliant?**
+
+`r sum(transit_unique$ada == TRUE)` stations are ADA compliant.
+
+**What proportion of station entrances / exits without vending allow entrance?**
+
+`r nrow(filter(transit_unique, vending =="NO", entry == "FALSE"))` of `r nrow(filter(transit_unique, vending == "NO"))` stations entrances / exits without vending allow entrance.
+
+
 Reformat data so that route number and route name are distinct variables. How many distinct stations serve the A train? Of the stations that serve the A train, how many are ADA compliant?
 
 ### Problem 3
