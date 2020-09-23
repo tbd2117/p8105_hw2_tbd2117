@@ -147,8 +147,10 @@ pols =
   separate(month, into = c("month", "day"), sep = -2) %>% 
   mutate(month = substring(pols$month, 2, 3)) %>% 
   mutate(month = as.numeric(pols$month)) %>% 
-  mutate(month = month.name[month]) %>% 
-  mutate(president = if_else(prez_gop == 1, "gop", "dem")) %>% 
+  mutate(month = month.name[month])
+
+pols = 
+  mutate(pols, president = if_else(prez_gop == 1, "gop", "dem")) %>%
   select(-prez_gop, -prez_dem, -day)
 ```
 
@@ -178,12 +180,26 @@ unemployment =
   ) %>% 
   mutate(month = str_to_title(month)) %>%  
   mutate(month = match(month,month.abb)) %>% 
-  mutate(month = month.name[unemployment$month])
+  mutate(month = month.name[unemployment$month]) %>% 
+  mutate(year = as.character(unemplyment$year))
 ```
 
 Join the datasets by merging snp into pols, and merging unemployment into the result.
 
+```{r}
+snp_pols =
+  full_join(snp, pols)
+snp_pols_unemployment = 
+  full_join(snp_pols, unemployment)
+```
+
 Write a short paragraph about these datasets. Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).
+
+```{r}
+The dataset _snp_pols_unemployment_ contains information related to the number of national politicians who are democratic or republican as well as the percentage of unemplyment at any given time as well as the closing values of the S&P stock index on the associated date.
+
+The dataset has `r nrow(snp_pols_unemployment)` rows and `r ncol(snp_pols_unemployment)` columns.
+```
 
 Note: we could have used a date variable as a key instead of creating year and month keys; doing so would help with some kinds of plotting, and be a more accurate representation of the data. Date formats are tricky, though. For more information check out the lubridate package in the tidyverse.
 
