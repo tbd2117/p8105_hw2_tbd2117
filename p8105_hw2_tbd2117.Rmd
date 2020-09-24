@@ -12,7 +12,7 @@ library(haven)
 
 ### Problem 1
 
-Reading and cleaning Mr. Trash Wheel Dataset
+Reading and cleaning Mr. Trash Wheel Sheet
 
 ```{r}
 mr_trash_df = 
@@ -24,24 +24,6 @@ mr_trash_df =
   drop_na(dumpster) %>% 
   mutate(sports_balls = as.integer(sports_balls)
   )
-  
-professor_trash_df = 
-  read_excel(
-    "./data/MR_Trash_Wheel.xlsx", 
-    sheet = "Professor Trash Wheel", 
-    range = "A2:N80") %>% 
-  janitor::clean_names() %>% 
-  drop_na(dumpster) %>%
-  mutate(sports_balls = as.integer(sports_balls)
-  )
-
-captain_trash_df = 
-  read_excel(
-    "./data/MR_Trash_Wheel.xlsx", 
-    sheet = "Captain Trash Wheel", 
-    range = "A2:k20") %>% 
-  janitor::clean_names() %>% 
-  drop_na(dumpster)
 ```
 
 **Read and clean precipitation data for 2017 and 2018. For each, omit rows without precipitation data and add a variable year.**
@@ -76,8 +58,7 @@ precipitation =
 ```{r}
 # median number of sports balls in a dumpster in 2017
 sports_balls_2017 = 
-  bind_rows(mr_trash_df, professor_trash_df, captain_trash_df) %>% 
-  select(sports_balls, year) %>%
+  select(mr_trash_df, sports_balls, year) %>%
   filter(year == "2017")
 
 # total precipitation in 2018
@@ -86,11 +67,7 @@ sum(pull(precip_2018, total))
 
 The _mr_trash_df_ dataset contains data on trash collected by Mr. Trash Wheel. The dataset has `r nrow(mr_trash_df)` rows and `r ncol(mr_trash_df)` columns, and includes data for dumpsters from `r min(pull(mr_trash_df, year), na.rm=TRUE)` to `r max(pull(mr_trash_df, year), na.rm=TRUE)`.
 
-
-The _professor_trash_df_ contains data on trash collected by Professor Trash Wheel. The dataset has `r nrow(professor_trash_df)` rows and `r ncol(professor_trash_df)` columns, and includes data for dumpsters from `r min(pull(professor_trash_df, year), na.rm=TRUE)` to `r max(pull(professor_trash_df, year), na.rm=TRUE)`.
-
-
-The _captain_trash_df_ contains data on trash collected by Captain Trash Wheel. The dataset has `r nrow(captain_trash_df)` rows and `r ncol(captain_trash_df)` columns, and includes data for dumpsters from `r min(pull(captain_trash_df, year), na.rm=TRUE)` to `r max(pull(captain_trash_df, year), na.rm=TRUE)`.
+The _precipitation_ dataset contain monthly precipitation for the years 2017 and 2018. The dataset has `r nrow(precipitation)` rows and `r ncol(precipitation)` columns.
 
 **For available data, what was the total precipitation in 2018? What was the median number of sports balls in a dumpster in 2017?**
 
@@ -187,14 +164,16 @@ snp =
 unemployment = 
   read_csv("./data/fivethirtyeight_datasets/unemployment.csv") %>% 
   janitor::clean_names() %>% 
-   pivot_longer(
+  pivot_longer(
     jan:dec, 
     names_to = "month",
     values_to = "unemployment_pct"
   ) %>% 
-  mutate(month = str_to_title(month)) %>%  
-  mutate(month = match(month,month.abb)) %>% 
-  mutate(month = month.name[month])
+  mutate(
+    month = str_to_title(month), 
+    month = match(month,month.abb),
+    month = month.name[month]
+  )
 ```
 
 **Join the datasets by merging snp into pols, and merging unemployment into the result.**
