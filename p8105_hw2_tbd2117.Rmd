@@ -16,34 +16,52 @@ Reading and cleaning Mr. Trash Wheel Dataset
 
 ```{r}
 mr_trash_df = 
-  read_excel("./data/MR_Trash_Wheel.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N408") %>% 
-  janitor::clean_names() %>% 
-  mutate(sports_balls = as.integer(sports_balls))
+  read_excel(
+    "./data/MR_Trash_Wheel.xlsx", 
+    sheet = "Mr. Trash Wheel", 
+    range = "A2:N408") %>% 
+  janitor::clean_names() %>%
+  drop_na(dumpster) %>% 
+  mutate(sports_balls = as.integer(sports_balls)
+  )
   
 professor_trash_df = 
-  read_excel("./data/MR_Trash_Wheel.xlsx", sheet = "Professor Trash Wheel", range = "A2:N80") %>% 
+  read_excel(
+    "./data/MR_Trash_Wheel.xlsx", 
+    sheet = "Professor Trash Wheel", 
+    range = "A2:N80") %>% 
   janitor::clean_names() %>% 
-  mutate(sports_balls = as.integer(sports_balls))
+  drop_na(dumpster) %>%
+  mutate(sports_balls = as.integer(sports_balls)
+  )
 
 captain_trash_df = 
-  read_excel("./data/MR_Trash_Wheel.xlsx", sheet = "Captain Trash Wheel", range = "A2:k20") %>% 
-  janitor::clean_names()
+  read_excel(
+    "./data/MR_Trash_Wheel.xlsx", 
+    sheet = "Captain Trash Wheel", 
+    range = "A2:k20") %>% 
+  janitor::clean_names() %>% 
+  drop_na(dumpster)
 ```
 
 **Read and clean precipitation data for 2017 and 2018. For each, omit rows without precipitation data and add a variable year.**
 
 ```{r}
 precip_2018 = 
-  read_excel("./data/MR_Trash_Wheel.xlsx", sheet = "2018 Precipitation", range = "A2:B14") %>% 
+  read_excel(
+    "./data/MR_Trash_Wheel.xlsx", 
+    sheet = "2018 Precipitation", 
+    range = "A2:B14") %>% 
   janitor::clean_names() %>% 
-  mutate(year = "2018") %>% 
-  mutate(month = month.name)
+  mutate(year = "2018", month = month.name)
 
 precip_2017 = 
-  read_excel("./data/MR_Trash_Wheel.xlsx", sheet = "2017 Precipitation", range = "A2:B14") %>% 
+  read_excel(
+    "./data/MR_Trash_Wheel.xlsx", 
+    sheet = "2017 Precipitation", 
+    range = "A2:B14") %>% 
   janitor::clean_names() %>% 
-  mutate(year = "2017") %>% 
-  mutate(month = month.name)
+  mutate(year = "2017", month = month.name)
 ```
 
 **Next, combine precipitation datasets and convert month to a character variable (the variable month.name is built into R and should be useful).**
@@ -57,9 +75,9 @@ precipitation =
 **Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in both resulting datasets, and give examples of key variables.** 
 ```{r}
 # median number of sports balls in a dumpster in 2017
-sports_balls_2017 = bind_rows(mr_trash_df, professor_trash_df, captain_trash_df) %>% 
-  select(sports_balls, year) %>% 
-  drop_na() %>% 
+sports_balls_2017 = 
+  bind_rows(mr_trash_df, professor_trash_df, captain_trash_df) %>% 
+  select(sports_balls, year) %>%
   filter(year == "2017")
 
 # total precipitation in 2018
@@ -130,8 +148,6 @@ transit_reformat =
     names_prefix = "route",
     values_to = "route_name",
   )
-
-str(transit_reformat)
 ```
 
 **How many distinct stations serve the A train? Of the stations that serve the A train, how many are ADA compliant?**
@@ -151,8 +167,7 @@ pols =
   separate(mon, into = c("year", "month", "day"), sep = "-", convert = TRUE) %>%
   mutate(month = month.name[month]) %>% 
   mutate(president = if_else(prez_gop == 1, "gop", "dem")) %>%
-  select(-prez_gop, -prez_dem, -day) %>% 
-  mutate(year = as.numeric(year))
+  select(-prez_gop, -prez_dem, -day)
 ```
 
 **Second, clean the data in snp.csv using a similar process to the above. For consistency across datasets, arrange according to year and month, and organize so that year and month are the leading columns.**
@@ -161,7 +176,7 @@ pols =
 snp = 
   read_csv("./data/fivethirtyeight_datasets/snp.csv") %>% 
   janitor::clean_names() %>% 
-  separate(date, into = c("month", "year", "day"), sep = "/", convert = TRUE) %>% 
+  separate(date, into = c("month", "day", "year"), sep = "/", convert = TRUE) %>% 
   mutate(month = month.name[month]) %>% 
   select(year, month, close)
 ```
@@ -195,4 +210,4 @@ snp_pols_unemployment =
 
 The dataset _snp_pols_unemployment_ contains information related to the number of national politicians who are democratic or republican as well as the percentage of unemplyment at any given time as well as the closing values of the S&P stock index on the associated date.
 
-The dataset has `r nrow(snp_pols_unemployment)` rows and `r ncol(snp_pols_unemployment)` columns.
+The dataset has `r nrow(snp_pols_unemployment)` rows and `r ncol(snp_pols_unemployment)` columns. It contains data from `r min(snp_pols_unemployment$year)` to `r max(snp_pols_unemployment$year)` for the following variables: `r colnames(snp_pols_unemployment)`.
