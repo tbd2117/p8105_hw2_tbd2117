@@ -104,6 +104,7 @@ These data could be tidy-er if repeated observations were excluded.
 
 ```{r}
 transit_unique = distinct(transit, line, station_name, .keep_all=TRUE)
+# could also use count()
 ```
 
 There are `r nrow(transit_unique)` distinct stations.
@@ -121,12 +122,16 @@ There are `r nrow(transit_unique)` distinct stations.
 ```{r}
 transit_reformat =
   transit_unique %>%
+  mutate(route8 = as.character(route8), route9 = as.character(route9), route10 = as.character(route10),
+      route11 = as.character(route11)) %>% 
   pivot_longer(
-    route1:route7, 
+    route1:route11, 
     names_to = "route_number",
     names_prefix = "route",
     values_to = "route_name",
   )
+
+str(transit_reformat)
 ```
 
 **How many distinct stations serve the A train? Of the stations that serve the A train, how many are ADA compliant?**
@@ -140,18 +145,20 @@ This problem uses the FiveThirtyEight data; these data were gathered to create t
 First, clean the data in pols-month.csv. Use separate() to break up the variable mon into integer variables year, month, and day; replace month number with month name; create a president variable taking values gop and dem, and remove prez_dem and prez_gop; and remove the day variable.
 
 ```{r}
+
+# possibilities
+## case_when()
+## 
+
 pols = 
   read_csv("./data/fivethirtyeight_datasets/pols-month.csv") %>% 
   janitor::clean_names() %>% 
-  separate(mon, into = c("year", "month"), sep = 4) %>% 
-  separate(month, into = c("month", "day"), sep = -2) %>% 
-  mutate(month = substring(pols$month, 2, 3)) %>% 
-  mutate(month = as.numeric(pols$month)) %>% 
-  mutate(month = month.name[month])
-
-pols = 
-  mutate(pols, president = if_else(prez_gop == 1, "gop", "dem")) %>%
+  separate(mon, into = c("year", "month", "day"), sep = "-", convert = TRUE) %>%
+  mutate(month = month.name[month]) %>% 
+  mutate(president = if_else(prez_gop == 1, "gop", "dem")) %>%
   select(-prez_gop, -prez_dem, -day)
+
+## check separate()
 ```
 
 Second, clean the data in snp.csv using a similar process to the above. For consistency across datasets, arrange according to year and month, and organize so that year and month are the leading columns.
@@ -201,10 +208,4 @@ The dataset _snp_pols_unemployment_ contains information related to the number o
 The dataset has `r nrow(snp_pols_unemployment)` rows and `r ncol(snp_pols_unemployment)` columns.
 ```
 
-Note: we could have used a date variable as a key instead of creating year and month keys; doing so would help with some kinds of plotting, and be a more accurate representation of the data. Date formats are tricky, though. For more information check out the lubridate package in the tidyverse.
-
-
-```{r}
-
-```
-
+Note: we could have used a date variable as a key instead of creating year and month keys; doing so would help with some kinds of plotting, and be a more accurate representation of the data. Date formats are tricky, though. For more information check out the ?lubridate package in the tidyverse.
